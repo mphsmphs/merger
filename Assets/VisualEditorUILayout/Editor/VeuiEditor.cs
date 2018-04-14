@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections;
 using UnityEditor;
 using System.Collections.Generic;
+using System.Dynamic;
 
 public class VeuiEditor : EditorWindow {
 	public static VeuiEditor mInstance = null;
@@ -36,6 +37,7 @@ public class VeuiEditor : EditorWindow {
     //todo: try move roll panel into ctrlist
     public static bool snapon=false;
     public static float gridstep = 8;
+
 
     public static float postdit(float p,float d)
     {
@@ -113,7 +115,9 @@ public class VeuiEditor : EditorWindow {
         ctrlist = new Dictionary<string,Ctrbox>();
         pctr = new List<Ctrbox>();
         //pctr.Add(ctr);
-
+        dynamic expando = new ExpandoObject();
+        expando.Name = "Brian";
+        expando.Country = "USA";
         //aroll.wr = new Rect(zpx, zpy, 500, 350);
     }
 	[MenuItem ("Scene/Visual EditorUI Layout", false, 2)]
