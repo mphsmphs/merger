@@ -1,10 +1,12 @@
 ﻿using UnityEngine;
+using System;
 using System.IO;
 using System.Collections;
 using UnityEditor;
 using System.Collections.Generic;
 //using System.Dynamic;
 
+   
 public class VeuiEditor : EditorWindow {
 	public static VeuiEditor mInstance = null;
 	// Use this for initialization
@@ -26,8 +28,10 @@ public class VeuiEditor : EditorWindow {
     public static string path = "";
     public static Dictionary<string , Rect> map;
     //public static Dictionary<string, Rect> _map;
-    public static Dictionary<string, Ctrbox> ctrlist;
+
+    //public static Dictionary<string, Ctrbox> ctrlist;
     //public static Dictionary<string, Ctrbox> _ctrlist;
+    public static guidata gdata;
     public Vector2 stpos = Vector2.zero;
     //public static Dictionary <>
     public static Rollout aroll;
@@ -66,7 +70,7 @@ public class VeuiEditor : EditorWindow {
         else
         {
             map.Remove (gid);
-            ctrlist.Remove (gid);
+            gdata.ctrlist.Remove (gid);
             //foreach (var ctr in map) Debug.Log(ctr);
             return true;
         }
@@ -80,7 +84,7 @@ public class VeuiEditor : EditorWindow {
         else
         {
             map.Add(gid, wr);
-            ctrlist.Add(gid, cbox);
+            gdata.ctrlist.Add(gid, cbox);
             //foreach (var ctr in map) Debug.Log(ctr);
             return gid;
          }
@@ -112,7 +116,8 @@ public class VeuiEditor : EditorWindow {
         //Debug.Log(path);
         
         map = new Dictionary<string, Rect>();
-        ctrlist = new Dictionary<string,Ctrbox>();
+        //gdata = new guidata();
+        
         pctr = new List<Ctrbox>();
         //pctr.Add(ctr);
         //dynamic expando = new ExpandoObject();
@@ -125,15 +130,20 @@ public class VeuiEditor : EditorWindow {
 	{
 		
 		if (mInstance == null) {
-			mInstance = (VeuiEditor)EditorWindow.GetWindow (typeof(VeuiEditor));
+
+            mInstance = (VeuiEditor)EditorWindow.GetWindow (typeof(VeuiEditor));
 			mInstance.titleContent.text = "Visual UI Layout";
 			mInstance.minSize = new Vector2 (700, 500);
 			mInstance.maxSize = new Vector2 (5200, 5000);
-			mInstance.Show ();
+           
+            mInstance.Show ();
+            
             Rect tmpwr = new Rect(zpx, zpy, 500, 350);
             aroll = new Rollout(tmpwr);
             //aroll.gid = "mainroll";
             //aroll.gid=regmap(tmpwr, aroll);
+            gdata = new guidata();
+            gdata.ctrlist = new Dictionary<string, Ctrbox>();
             pctr.Add(aroll);
             ash = new Scalehandle(tmpwr);
             apan = new VUEPanel(tmpwr);
@@ -200,7 +210,7 @@ public class VeuiEditor : EditorWindow {
             }
             if (curkey != "")
             {
-                ctrlist[curkey].reciver(cure, curkey);
+                gdata.ctrlist[curkey].reciver(cure, curkey);
                 //Debug.Log(map[curkey]);
                 //Debug.Log("kkkk");
             }
@@ -232,7 +242,8 @@ public class VeuiEditor : EditorWindow {
             aroll.paint();
             Vector2 sp = Vector2.zero;
             sp = GUI.BeginScrollView(aroll.wr, sp, aroll.wr);
-            if (ctrlist != null) foreach (var ctr in ctrlist)
+            //Debug.Log(gdata);
+            if (gdata.ctrlist != null) foreach (var ctr in gdata.ctrlist)
                 {
                     ctr.Value.paint();
                 }
@@ -267,18 +278,20 @@ public class VeuiEditor : EditorWindow {
         wr.height = iconha;
         if(GUI.Button(wr, "s"))
         {
+            string jsfile = gdata.jsthis();
             OutStrings oss = new OutStrings();
             oss.OutInc();
             oss.BeginCls("test");
             oss.OutMenu();
             oss.BeginGui();
-            foreach (var ctr in VeuiEditor.ctrlist)
+            foreach (var ctr in gdata.ctrlist)
             {
                 oss.OutCtr(ctr.Value);
             }
             oss.EndGui();
             oss.EndCls();
             Debug.Log(oss.output);
+            Debug.Log(jsfile);
         }
 
         wr.x -= iconwa;
@@ -296,7 +309,15 @@ public class VeuiEditor : EditorWindow {
 }
 
 
-
+public class guidata
+{
+    public string kk = "lslfjsjlf";
+    public Dictionary<string, Ctrbox> ctrlist;
+    public string jsthis()
+    {
+        return (JsonUtility.ToJson(this));
+    }
+}
 
 public class Ctrbox
 {
